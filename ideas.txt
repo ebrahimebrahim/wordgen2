@@ -22,6 +22,19 @@ pickle the distribution; this will be saved for the ultimate generator.
 do this for a bunch of languages, pickling lots of distributions.
 now, to generate a language what we do is
 - take a random convex linear combination (maybe coeffs weighted towards bdry of simplex?) of distributions.
+  - FIX: A convex linear combination is not a good way to generate something that looks like a language.
+    Instead, do the following:
+  - Pick which elements of IPA will be in the language. Do this intelligently by picking vowels and consonants separately,
+    or by sampling from actual languages and merging results. IDK how to do this part exactly...
+  - Create a new distribution D (I will assume here that D is a rank 3 tensor, so we've got a "memory" of 2)
+  - For each glyph i,
+    - populate D[i,:,:] by stealing the results from a random language.
+    - for each glyph j,
+      - There's a chance (20%?) to populate D[i,j,:] from another random language
+      - for each glyph k,
+        - There's a chance (20%?) to populate D[i,j,k] from another random language
+      - There's a chance (10%?) to now shuffle the nonzero entries of D[i,j,:]
+      - Normalize D[i,j,:] since the k thingy above can screw that up (or do a full renormalization outside all loops).
 - look at frequency of phonemes and kill off the ones that are too infrequent, so that there's a reasonable amount of phonemes left
 - pickle the resulting distribution, which should be also equipped with a glyphs set and glyphs--int dict.
 - generate an IPA projection:
