@@ -1,0 +1,19 @@
+convert wikipedia language dump for language X into IPA
+then learn distributions for IPA
+this way we can use arabic, etc.
+
+but still need to generate a spelling system somehow...
+in fiction spelling conventions do a lot of the work of giving a feel for the "culture"
+perhaps have a database of existsing spelling systems and do combinations to generate a new one
+maybe some minimal/rare innovation can be allowed
+
+
+
+
+hmm:
+is there a difference between generating words forwards vs in reverse vs outwards?
+
+
+
+generate a distribution for english, one for french, etc.
+then take convex combinations of the distributions to generate a language
