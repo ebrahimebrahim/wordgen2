@@ -17,3 +17,15 @@ is there a difference between generating words forwards vs in reverse vs outward
 
 generate a distribution for english, one for french, etc.
 then take convex combinations of the distributions to generate a language
+
+
+figure out nouns, verbs, adj, proper names, etc to generate a distribution for each. then you get a generator for each
+
+
+
+once you've generated a language, generate words to go with all english stems
+then generate morphology (study morphology to learn how to do this?)
+and generate some syntax rules (e.g. SVO vs VSO etc, and all kinds of parameters derived from xbar theory)
+then for any given english sentence, you could write its translation in the generated language
+
+hmm, you could also use word embeddings somehow? generate a word embedding? use word embedding to generate morphology? idk...
