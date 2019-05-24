@@ -1,6 +1,44 @@
 convert wikipedia language dump for language X into IPA
 then learn distributions for IPA
 this way we can use arabic, etc.
+use https://github.com/dmort27/epitran to do this!
+
+Then you can generate different "projections" of IPA back down into some more normal letters.
+A projection is a generated mapping from ipa glyphs to roman letters plus some decorations sometimes (like accented letters, etc.)
+There can also be a generated postprocessing which creates weird "spelling rules" 
+e.g. i sometimes becomes ee and sometimes beomes ie and sometimes ei.
+
+
+if you really use IPA, maybe a "glyph memory" of 2 is just as good as a memory of 3 was for english orthography.
+
+
+so:
+start with raw text, like from wikipedia, for the language.
+start also with the alphabet, the "glyphs" set for the language.
+have an uppercase to lower case mapping ready for that alphabet.
+go through words in file, where a word is a lower-casified thing which consists of glyphs of the language only.
+convert each word to IPA, and create distribution (memory 2? memory 3?) based on that.
+pickle the distribution; this will be saved for the ultimate generator.
+do this for a bunch of languages, pickling lots of distributions.
+now, to generate a language what we do is
+- take a random convex linear combination (maybe coeffs weighted towards bdry of simplex?) of distributions.
+- look at frequency of phonemes and kill off the ones that are too infrequent, so that there's a reasonable amount of phonemes left
+- pickle the resulting distribution, which should be also equipped with a glyphs set and glyphs--int dict.
+- generate an IPA projection:
+  - each IPA phoneme has a list of roman letters (and roman letters with diacritics) (and strings like 'th') that could represent it,
+    in order of "preference" for how strong of a representation it is to the western reader.
+  - for each IPA phoneme that appears in the glyphs set for this particular distribution, choose what roman thingy it will project to;
+    in your choice make a preference for things that are stronger representations (e.g. avoid diacritics if possible),
+    but with a bit of noise so that sometimes you do get a weird character showing up here and there.
+  - generate some number (0 or more) of post-processing orthography rules of various types:
+    - different representations of the same thing (e.g. i sometimes becomes ee and sometime ie)
+    - the same thing, but conditional on being followed or preceded by certain things.
+      (you might want to focus on vowels specifically for this sort of thing)
+    - silent letters?
+  - Now the IPA phoneme to roman mapping and the post processing rules together make up the IPA projection.
+- The generated distribution and the generated IPA projection together make up the generated language
+
+
 
 but still need to generate a spelling system somehow...
 in fiction spelling conventions do a lot of the work of giving a feel for the "culture"
@@ -29,3 +67,6 @@ and generate some syntax rules (e.g. SVO vs VSO etc, and all kinds of parameters
 then for any given english sentence, you could write its translation in the generated language
 
 hmm, you could also use word embeddings somehow? generate a word embedding? use word embedding to generate morphology? idk...
+
+
+
