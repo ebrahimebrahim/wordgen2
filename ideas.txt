@@ -15,8 +15,7 @@ if you really use IPA, maybe a "glyph memory" of 2 is just as good as a memory o
 so:
 start with raw text, like from wikipedia, for the language.
 start also with the alphabet, the "glyphs" set for the language.
-have an uppercase to lower case mapping ready for that alphabet.
-go through words in file, where a word is a lower-casified thing which consists of glyphs of the language only.
+go through words in file, where a word consists of glyphs of the language only.
 convert each word to IPA, and create distribution (memory 2? memory 3?) based on that.
 pickle the distribution; this will be saved for the ultimate generator.
 do this for a bunch of languages, pickling lots of distributions.
@@ -50,6 +49,19 @@ now, to generate a language what we do is
     - silent letters?
   - Now the IPA phoneme to roman mapping and the post processing rules together make up the IPA projection.
 - The generated distribution and the generated IPA projection together make up the generated language
+
+
+Issue with merging system described above:
+If there exist i,j s.t. there exists an l s.t. D[l,i,j] is nonzero, but D[i,j,k] is zero for all k, then we have a problem.
+We need this not to happen.
+So we need that for all i,j,
+ either D[l,i,j] vanishes for all l, or
+ D[i,j,k] is nonzero for some k. 
+So we need that for all i,j,
+ If D[l,i,j] is nonzero for some l, then
+ D[i,j,k] is nonzero for some k. 
+
+Actually.. you can get super weird feedback loops by merging language distributions this way...
 
 
 

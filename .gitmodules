@@ -1,0 +1,3 @@
+[submodule "epitran"]
+	path = epitran
+	url = git@github.com:ebrahimebrahim/epitran.git
