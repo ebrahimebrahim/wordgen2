@@ -129,12 +129,11 @@ class WordgenLearned(Wordgen):
     with open(filename) as f:
       for line_num,line in enumerate(f.readlines()):
         for word in extract_words(line):
-          for i in range(len(word)+1):
-            group = [] # TODO: group can be handled in a smarter way, like it is in genarate_word.
-            for lookback in range(self.window_size-1,0,-1):
-              group.append(start_token if (i-lookback)<0 else word[i-lookback])
-            group.append(end_token if i>=len(word) else word[i])
-            counts[tuple(group)] += 1
+          previous = [start_token]*(self.window_size-1)
+          for t in word:
+            counts[tuple(previous)+(t,)] += 1
+            previous = previous[1:]+[t]
+          counts[tuple(previous)+(end_token,)] += 1
         sys.stdout.write("> "+str(line_num+1)+" lines processed                   \r")
         sys.stdout.flush()
       print()
