@@ -29,13 +29,13 @@ args=parser.parse_args()
 wg = WordgenLearned(window_size = args.window_size, lang_code = args.lang_code)
 wg.learn_distribution(args.filename)
 
+print("\nSome genrated words:\n")
 for _ in range(100):
   word = wg.generate_word()
   if len(word)>4: print(word)
 
-#filename_pkl = os.path.splitext(filename)[0]+".pkl"
-#with open(filename_pkl,'wb') as pickle_file:
-#  pickle.dump(distribution,pickle_file)
-
+filename_pkl = os.path.splitext(args.filename)[0]+".pkl"
+with open(filename_pkl,'wb') as pickle_file:
+  pickle.dump(wg,pickle_file)
 
 
