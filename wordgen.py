@@ -1,10 +1,12 @@
 import numpy as np
 
 import os,sys
-module_path = os.path.abspath(os.path.join('epitran'))
-if module_path not in sys.path:
-  sys.path.append(module_path)
-
+def add_path_to_local_module(module_name):
+  module_path = os.path.abspath(os.path.join(module_name))
+  if module_path not in sys.path:
+    sys.path.append(module_path)
+add_path_to_local_module("epitran")
+add_path_to_local_module("panphon")
 import panphon
 import epitran
 import pickle

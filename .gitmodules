@@ -1,3 +1,6 @@
 [submodule "epitran"]
 	path = epitran
 	url = git@github.com:ebrahimebrahim/epitran.git
+[submodule "panphon"]
+	path = panphon
+	url = git@github.com:ebrahimebrahim/panphon.git
