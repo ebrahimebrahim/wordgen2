@@ -18,6 +18,7 @@ class Wordgen(object):
                           E.g. if this is 3, then the generator picks each sound based on the previous 2.
       lang_name (str)   : Name of language, e.g. "English" or "Fictional language #1"
     """
+    if window_size < 2: raise Exception("A window size less than 2 does not make sense.")
     self.window_size = window_size
     self.lang_name = lang_name
 
