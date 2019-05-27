@@ -117,7 +117,7 @@ class WordgenLearned(Wordgen):
       for word in line.split():
         word_ipa = self._epi.trans_list(word.strip(' .()!:;,\n'))
         if word_ipa and all(c in self.get_ipa_tokens() for c in word_ipa):
-          yield list(map(self.token_to_int,word_ipa))
+          yield map(self.token_to_int,word_ipa)
         else: s_msg.print("\""+word+"\" was not processed.")
 
     num_tokens  = len(self.get_ipa_tokens())
