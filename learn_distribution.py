@@ -7,7 +7,7 @@
 # at first the wordgen2 classes will be here, but then you can move them to wordgen2.py for use in the later language generator
 
 import argparse,os,sys,pickle
-from wordgen import WordgenLearned
+from wordgen import WordgenLearned, save_wg, load_wg
 
 
 parser = argparse.ArgumentParser(description='Learn distribution of sounds that tend to go together given some text in a particular language.')
@@ -35,7 +35,5 @@ for _ in range(100):
   if len(word)>4: print(word)
 
 filename_pkl = os.path.splitext(args.filename)[0]+".pkl"
-with open(filename_pkl,'wb') as pickle_file:
-  pickle.dump(wg,pickle_file)
-
+save_wg(wg,filename_pkl)
 

@@ -7,6 +7,7 @@ if module_path not in sys.path:
 
 import panphon
 import epitran
+import pickle
 
 
 
@@ -34,6 +35,11 @@ class Wordgen(object):
   def get_distribution(self):
     raise NotImplementedError
 
+  def generate_word(self):
+    raise NotImplementedError
+
+
+
 
 class SuppressedMessenger(object):
   """ A class to output messages with output being supressed at a certain point."""
@@ -50,6 +56,7 @@ class SuppressedMessenger(object):
     elif not self.stopped_printing:
       print("[Further output regarding "+self.name+" will be suppressed]")
       self.stopped_printing = True
+
 
 
 class WordgenLearned(Wordgen):
@@ -124,7 +131,7 @@ class WordgenLearned(Wordgen):
     start_token = self.token_to_int('WORD_START')
     end_token   = self.token_to_int('WORD_END')
 
-    counts = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('u8')) # TODO use scipy sparse array instead and be smarter about dtype
+    counts = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('u8')) # TODO use sparse array instead and be smarter about dtype.
 
     with open(filename) as f:
       for line_num,line in enumerate(f.readlines()):
@@ -160,10 +167,25 @@ class WordgenLearned(Wordgen):
     while previous[-1]!=self.token_to_int('WORD_END'):
       if self.get_distribution()[tuple(previous)].sum()==0:
         next_char = np.random.choice(range(num_tokens))
-        print("Uh oh! This shouldn't happen, right?") # TODO: Decide whether this is allowed or should yield a proper error
+        print("Uh oh! This shouldn't happen, right?",previous) # TODO: Decide whether this is allowed or should yield a proper error
       else:
         next_char = np.random.choice(range(num_tokens),p=self.get_distribution()[tuple(previous)])
       previous = previous[1:]+[next_char]
       word.append(next_char)
     return ''.join(self.int_to_token(c) for c in word[:-1])
 
+  def get_distribution_sparsity(self):
+    """ Return sparsity of distribution tensor; i.e. the proportion of entries that are zero. """
+    d=self.get_distribution()
+    return 1-np.count_nonzero(d)/float(d.size)
+
+
+
+def save_wg(wg,filename):
+  with open(filename,'wb') as pickle_file:
+    pickle.dump(wg, pickle_file)
+
+def load_wg(filename):
+  with open(filename,'rb') as pickle_file:
+    wg = pickle.load(pickle_file)
+  return wg
