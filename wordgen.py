@@ -104,7 +104,6 @@ class WordgenLearned(Wordgen):
   def int_to_token(self,i):
     return self._int_to_token[i]
 
-
   def learn_distribution(self,filename):
     """ Go through txt file and count chunks of sounds appearing in words, learning a distribution to generate from. """
 
@@ -128,14 +127,17 @@ class WordgenLearned(Wordgen):
     counts = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('u8')) # TODO use scipy sparse array instead and be smarter about dtype
 
     with open(filename) as f:
-      for line in f.readlines():
+      for line_num,line in enumerate(f.readlines()):
         for word in extract_words(line):
           for i in range(len(word)+1):
-            group = []
+            group = [] # TODO: group can be handled in a smarter way, like it is in genarate_word.
             for lookback in range(self.window_size-1,0,-1):
               group.append(start_token if (i-lookback)<0 else word[i-lookback])
             group.append(end_token if i>=len(word) else word[i])
             counts[tuple(group)] += 1
+        sys.stdout.write("> "+str(line_num+1)+" lines processed                   \r")
+        sys.stdout.flush()
+      print()
                   
     totals = counts.sum(axis=self.window_size-1)
     self._distribution = counts / (np.vectorize(lambda x : x if x!=0 else 1)(totals.reshape(totals.shape+(1,))))
