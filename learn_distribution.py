@@ -12,16 +12,16 @@ from wordgen import WordgenLearned, save_wg, load_wg
 
 parser = argparse.ArgumentParser(description='Learn distribution of sounds that tend to go together given some text in a particular language.')
 parser.add_argument('filename',help='path to text file containing some text in a certain language', type=str, metavar="filename")
-parser.add_argument('--window_size','-w',
-                    nargs='?',
-                    help='How many consecutive phones (IPA glyphs) to consider at a time in the learned distribution.',
-                    type=int,
-                    default=3,
-                    metavar="window size")
 parser.add_argument('lang_code',
                     help='Language code, for example \"eng-Latn\". See epitran/README.md for more on the language code.',
                     type=str,
                     metavar=("language_code",))
+parser.add_argument('--window_size','-w',
+                    nargs='?',
+                    help='How many consecutive phones (IPA glyphs) to consider at a time in the learned distribution. Default is 3.',
+                    type=int,
+                    default=3,
+                    metavar="window size")
 args=parser.parse_args()
 
 
