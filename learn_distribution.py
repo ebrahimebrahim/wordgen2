@@ -22,8 +22,11 @@ parser.add_argument('--window_size','-w',
                     type=int,
                     default=3,
                     metavar="window size")
-args=parser.parse_args()
-
+try:
+  args=parser.parse_args()
+except:
+  parser.print_help()
+  sys.exit(0)
 
 
 wg = WordgenLearned(window_size = args.window_size, lang_code = args.lang_code)

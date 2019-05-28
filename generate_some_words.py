@@ -16,7 +16,11 @@ parser.add_argument('--min_len','-l',
                     type=int,
                     default=4,
                     metavar="minimum word length")
-args=parser.parse_args()
+try:
+  args=parser.parse_args()
+except:
+  parser.print_help()
+  sys.exit(0)
 
 wg = load_wg(args.filename)
 
