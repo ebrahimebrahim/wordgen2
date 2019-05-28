@@ -40,7 +40,11 @@ For detailed help:
 ```
 python generate_some_words.py -h
 ```
-Continuing the example from above, suppose we ended with the saved object `spanish_text.pkl`. To generate some words:
+Continuing the example from above, suppose we ended up with the saved object `spanish_text.pkl`. To generate some words:
 ```
 python generate_some_words.py spanish_text.pkl
 ```
+
+## Next
+
+The ultimate goal is to be able to generate fictional languages, and the next step is to generate a sort of phonology that can be used to merge learned distributions.
