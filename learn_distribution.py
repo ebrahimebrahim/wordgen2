@@ -23,10 +23,10 @@ parser.add_argument('--window_size','-w',
                     default=3,
                     metavar="window size")
 try:
-  args=parser.parse_args()
+    args=parser.parse_args()
 except:
-  parser.print_help()
-  sys.exit(0)
+    parser.print_help()
+    sys.exit(0)
 
 
 wg = WordgenLearned(window_size = args.window_size, lang_code = args.lang_code)
@@ -34,8 +34,8 @@ wg.learn_distribution(args.filename)
 
 print("\nSome genrated words:\n")
 for _ in range(100):
-  word = wg.generate_word()
-  if len(word)>4: print(word)
+    word = wg.generate_word()
+    if len(word)>4: print(word)
 
 filename_pkl = os.path.splitext(args.filename)[0]+".pkl"
 save_wg(wg,filename_pkl)

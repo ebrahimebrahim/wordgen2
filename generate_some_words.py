@@ -17,14 +17,14 @@ parser.add_argument('--min_len','-l',
                     default=4,
                     metavar="minimum word length")
 try:
-  args=parser.parse_args()
+    args=parser.parse_args()
 except:
-  parser.print_help()
-  sys.exit(0)
+    parser.print_help()
+    sys.exit(0)
 
 wg = load_wg(args.filename)
 
 for _ in range(args.num_words):
-  word = wg.generate_word()
-  if len(word)>=args.min_len: print(word)
+    word = wg.generate_word()
+    if len(word)>=args.min_len: print(word)
 
