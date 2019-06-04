@@ -1,5 +1,5 @@
 import numpy as np
-
+from itertools import product
 import os,sys
 def add_path_to_local_module(module_name):
     module_path = os.path.abspath(os.path.join(module_name))
@@ -7,9 +7,11 @@ def add_path_to_local_module(module_name):
         sys.path.append(module_path)
 add_path_to_local_module("epitran")
 add_path_to_local_module("panphon")
+from suppressed_messenger import SuppressedMessenger
 import panphon
 import epitran
 import pickle
+import phonological_embedding
 
 
 
@@ -42,23 +44,174 @@ class Wordgen(object):
   
 
 
+class WordgenMerged(Wordgen):
+    """ Merge several learned word generators to create a word generator for a fictional language.
+        Use merge_languages method to initialize. """
 
-class SuppressedMessenger(object):
-    """ A class to output messages with output being supressed at a certain point."""
-    def __init__(self,name,max_messages):
-        self.name = name
-        self.num_printed = 0
-        self.max_messages = max_messages
-        self.stopped_printing = False if max_messages > 0 else True
-  
-    def print(self,msg):
-        if self.num_printed < self.max_messages:
-            print(msg)
-            self.num_printed += 1
-        elif not self.stopped_printing:
-            print("[Further output regarding "+self.name+" will be suppressed]")
-            self.stopped_printing = True
-  
+    def merge_langauges(self,learned_gens):
+        """
+            Merge some learned word generator distributions to create a new one.
+            The IPA tokens of the learned distributions will be unioned together, then
+            they will be grouped into equivalence classes (kind of like allophones) with chosen representatives
+            to constitute the sounds of the new language.
+            Then the distribution of segment clusters will be created by randomly pooling together information
+            from the distributions of the learned languages.
+
+            learned_gens (list of WordgenLearned) : a nonempty list of learned word generators.
+        """
+        
+        assert(all(gen.window_size == self.window_size for gen in learned_gens))
+
+        # Load in the fixed phonological embedding. This was created in exploration4.ipynb
+        self.ph_embed = phonological_embedding.PhonologicalEmbedding()
+
+        # First gather all ipa_tokens
+        all_ipa_tokens = set()
+        for gen in learned_gens:
+            all_ipa_tokens.update(gen.get_ipa_tokens())
+
+        # Remove any bad tokens that phoible won't like for the next part. These are not good tokens for a wordgen anyway.
+        # We will also remove the start and end tokens; they will be brought back in later
+#        bad_tokens = ['ː','̃','WORD_START','WORD_END']
+        for t in bad_tokens: 
+            if t in all_ipa_tokens: 
+                all_ipa_tokens.remove(t)
+
+        # all_ipa_tokens will from now on be an ordered list
+        all_ipa_tokens = list(all_ipa_tokens)
+        num_all_tokens = len(all_ipa_tokens)
+
+        # Compute max and min distances tokens have from each other via the feature embedding
+        dists = []
+        for c1 in all_ipa_tokens:
+            for c2 in all_ipa_tokens:
+                if c1 != c2 : dists.append(self.ph_embed.dist(c1,c2))
+        max_dist,min_dist = max(dists),min(dists)
+
+        # Create equivalence classes of phonemes to cut down number of sounds
+        projection = [n for n in range(num_all_tokens)] # we start with identity mapping and will gradually identify things
+        # think of projection as mapping from indices representing ipa_chars to equivalence classes
+        # the number of equivalence classes is len(set(projection))
+        M = int(np.random.normal(35,10)) # choose number of sounds
+        step_size = (max_dist-min_dist)/float(num_all_tokens*500) # this is just some small step size for the loop below. we just want to be certain the loop terminates
+        spread = (max_dist-min_dist)/20.
+        for r0 in np.arange(min_dist,max_dist,step_size):
+            r = max(step_size,np.random.normal(r0,spread))
+            ipa_char_index = np.random.randint(num_all_tokens)
+            s0 = all_ipa_tokens[ipa_char_index]
+            for n in range(num_all_tokens):
+                s = all_ipa_tokens[n]
+                if self.ph_embed.dist(s,s0)<r:
+                    projection[n]=projection[ipa_char_index]
+            if len(set(projection))<=M: break
+
+        # Choose a representative for each equivalence class to serve as the standard/official pronunciation for the new language
+        direction = np.array([np.random.normal() for _ in range(num_features)])
+        section = {} # Think of section as a map back from the codomain of projection to the domain which picks a rep of each equivalence class
+        for p in set(projection):
+            equiv_class = [n for n in range(num_all_tokens) if projection[n]==p]
+            rep = max(equiv_class,key=lambda n : np.dot(self.ph_embed.embed(all_ipa_tokens[n]),direction).item())
+            for n in equiv_class: section[n] = rep
+            # print(all_ipa_tokens[rep],[all_ipa_tokens[n] for n in equiv_class])
+        
+        # Set up dict mapping ipa tokens from representative tokens to list of tokens in all_ipa_tokens that are equivalent to it
+        token_to_equivclass = {}
+        for rep_index in set(section.values()):
+            equiv_class_indices = [n for n in range(num_all_tokens) if projection[n]==projection[rep_index]]
+            equiv_class_tokens = [all_ipa_tokens[n] for n in equiv_class_indices]
+            token_to_equivclass[all_ipa_tokens[rep_index]] = equiv_class_tokens
+        token_to_equivclass['WORD_START']=['WORD_START']
+        token_to_equivclass['WORD_END']=['WORD_END']
+        self.token_to_equivclass = token_to_equivclass 
+
+        ipa_tokens = list(token_to_equivclass.keys())
+        num_tokens = len(ipa_tokens)
+        self._ipa_tokens = set(ipa_tokens)
+        self._int_to_token = {n:ipa_tokens[n] for n in range(num_tokens)}
+        self._token_to_int = {val:key for key,val in self._int_to_token.items()}
+
+        # Finally, we create the merged distribution:
+        
+        self._distribution = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('float32'))
+        for token_indices in product(range(num_tokens),repeat=self.window_size):
+
+            tokens = [self.int_to_token(i) for i in token_indices]
+            equiv_classes = [token_to_equivclass[t] for t in tokens]
+
+            potential_gens = {} # keys will be learned wordgens that could be used to populate distribution[token_indices]
+                                # values will be a score; higher means better candidate
+            for gen in learned_gens:
+                potential_tokens = gen.get_ipa_tokens()
+                if all(any(t in potential_tokens for t in cls) for cls in equiv_classes):
+                    potential_gens[gen] = sum(1 for t in tokens if t in potential_tokens)
+
+            if not potential_gens: # if it's an empty dict
+                continue # move on and leave distribution[token_indices] as zero
+
+            max_score = max(potential_gens.values())
+            best_gens = [gen for gen in potential_gens.keys() if potential_gens[gen]==max_score]
+            gen_to_use = np.random.choice(best_gens)
+
+            indices_to_use = [] # indices of gen_to_use type to use for each token in tokens
+            for t in tokens:
+                if t in gen_to_use.get_ipa_tokens():
+                    indices_to_use.append(gen_to_use.token_to_int(t))
+                else:
+                    potential_indices = [gen_to_use.token_to_int(t1) for t1 in token_to_equivclass[t] if t1 in gen_to_use.get_ipa_tokens()]
+                    indices_to_use.append(np.random.choice(potential_indices))
+            indices_to_use = tuple(indices_to_use)
+
+            self._distribution[token_indices] = gen_to_use.get_distribution()[indices_to_use]
+
+
+        # Now the generator we created could create some impossible combinations, so here is a helper function to clear them out.
+
+        def clear_out_impossible_combos(D, t_to_i):
+            """Given a distribution D, make one pass through the entries and clear out
+               impossible combbinations by zeroing probabilities.
+               More precisely (assuming window size of 3 in the notation here):
+
+               For each i,j, we ensure that if D[i,j,k] is zero for all k,
+               then D[l,i,j] is also zero for all l.
+
+               After one iteration through all i,j, more impossible combinations may be created,
+               so this function would have to be called repeatedly until that is done.
+
+               Arguments:
+                   D is the wordgen distribution
+                   t_to_i is the dict mapping IPA tokens to indices
+
+               Return number of nonzero D[l,i,j] found (and repaired) for which D[i,j,k] was zero for all k"""
+
+            num_impossibles_found = 0
+
+            w = len(D.shape) # win size
+            n = D.shape[0] # num_tokens
+            for token_indices in product(range(n),repeat=w-1): # For each i,j
+                if t_to_i['WORD_END'] in token_indices:
+                    continue
+                if D[token_indices].sum()<=0: # if D[i,j][k] is zero for all k
+                    for l in range(n):
+                        if D[(l,)+token_indices]!=0:
+                            num_impossibles_found += 1
+                            D[(l,)+token_indices]=0
+
+            return num_impossibles_found
+
+        num_impossibles_found = 1
+        while num_impossibles_found!=0:
+            num_impossibles_found = clear_out_impossible_combos(self._distribution,self._token_to_int)
+            # print(num_impossibles_found,"bad entries repaired.")
+
+
+        # The distribution still needs to be normalized:
+
+        totals = self._distribution.sum(axis=self.window_size-1)
+        self._distribution = self._distribution / (np.vectorize(lambda x : x if x!=0 else 1)(totals.reshape(totals.shape+(1,))))
+
+
+    
+
 
 
 class WordgenLearned(Wordgen):
