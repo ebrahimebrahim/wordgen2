@@ -60,6 +60,9 @@ So we need that for all i,j,
 So we need that for all i,j,
  If D[l,i,j] is nonzero for some l, then
  D[i,j,k] is nonzero for some k. 
+Another way to say it:
+ If D[i,j,k] is zero for all k, then
+ D[l,i,j] had better be zero for all l
 
 Actually.. you can get super weird feedback loops by merging language distributions this way...
 
