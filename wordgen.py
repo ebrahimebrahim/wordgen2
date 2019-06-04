@@ -96,9 +96,9 @@ class WordgenMerged(Wordgen):
         for gen in learned_gens:
             all_ipa_tokens.update(gen.get_ipa_tokens())
 
-        # Remove any bad tokens that phoible won't like for the next part. These are not good tokens for a wordgen anyway.
+        # Remove any bad tokens that phoible didn't like for the next part. These are not good tokens for a wordgen anyway.
         # We will also remove the start and end tokens; they will be brought back in later
-#        bad_tokens = ['ː','̃','WORD_START','WORD_END']
+        bad_tokens = ['ː','̃','WORD_START','WORD_END']
         for t in bad_tokens: 
             if t in all_ipa_tokens: 
                 all_ipa_tokens.remove(t)
@@ -233,7 +233,7 @@ class WordgenMerged(Wordgen):
         # The distribution still needs to be normalized:
 
         totals = self._distribution.sum(axis=self.window_size-1)
-        self._distribution = self._distribution / (np.vectorize(lambda x : x if x!=0 else 1)(totals.reshape(totals.shape+(1,))))
+        self._distribution = self._distribution / (np.vectorize(lambda x : x if x!=0 else np.float32(1))(totals.reshape(totals.shape+(1,))))
 
 
     
