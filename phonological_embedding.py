@@ -20,6 +20,7 @@ class PhonologicalEmbedding(object):
         if PhonologicalEmbedding.__embedding_matrix is None or PhonologicalEmbedding.__to_phoible_feats_dict is None:
             with open("phonological_embedding_data.pkl",'rb') as pickle_file:
                 PhonologicalEmbedding.__to_phoible_feats_dict , PhonologicalEmbedding.__embedding_matrix = pickle.load(pickle_file)
+        self.embed_dim = len(list(PhonologicalEmbedding.__to_phoible_feats_dict.values())[0])
 
 
     def epitran_to_phoible(self,epitran_ipa):

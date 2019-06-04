@@ -28,19 +28,45 @@ class Wordgen(object):
         self.lang_name = lang_name
     
     def get_ipa_tokens(self):
-        raise NotImplementedError
+        """ Return set of ipa tokens, including word start and end tokens """
+        return self._ipa_tokens
   
     def token_to_int(self,token):
-        raise NotImplementedError
+        return self._token_to_int[token]
   
     def int_to_token(self,i):
-        raise NotImplementedError
+        return self._int_to_token[i]
   
     def get_distribution(self):
-        raise NotImplementedError
+        """ Return distribution array D.
+            Let w be the window_size.
+            For integers i_1,...,i_w (which enumerate some IPA tokens),
+            D[i_1,...,i_w] is the probability that, given the consecutive sounds represented by i_1 ... i_{w-1} appearing in a word, that the next sound is i_w.
+            
+            The distribution should be learned from some text data before this method gets called."""
+        if self._distribution is None:
+            raise Exception("Attempted to access distribution before it was instantiated.")
+        else:
+            return self._distribution
   
     def generate_word(self):
-        raise NotImplementedError
+        num_tokens  = len(self.get_ipa_tokens())
+        previous = [self.token_to_int('WORD_START')]*(self.window_size-1)
+        word = []
+        while previous[-1]!=self.token_to_int('WORD_END'):
+            if self.get_distribution()[tuple(previous)].sum()==0:
+                next_char = np.random.choice(range(num_tokens))
+                print("Uh oh! This shouldn't happen, right?",previous) # TODO: Decide whether this is allowed or should yield a proper error
+            else:
+                next_char = np.random.choice(range(num_tokens),p=self.get_distribution()[tuple(previous)])
+            previous = previous[1:]+[next_char]
+            word.append(next_char)
+        return ''.join(self.int_to_token(c) for c in word[:-1])
+  
+    def get_distribution_sparsity(self):
+        """ Return sparsity of distribution tensor; i.e. the proportion of entries that are zero. """
+        d=self.get_distribution()
+        return 1-np.count_nonzero(d)/float(d.size)
   
 
 
@@ -106,7 +132,7 @@ class WordgenMerged(Wordgen):
             if len(set(projection))<=M: break
 
         # Choose a representative for each equivalence class to serve as the standard/official pronunciation for the new language
-        direction = np.array([np.random.normal() for _ in range(num_features)])
+        direction = np.array([np.random.normal() for _ in range(self.ph_embed.embed_dim)])
         section = {} # Think of section as a map back from the codomain of projection to the domain which picks a rep of each equivalence class
         for p in set(projection):
             equiv_class = [n for n in range(num_all_tokens) if projection[n]==p]
@@ -255,16 +281,8 @@ class WordgenLearned(Wordgen):
         ft = panphon.featuretable.FeatureTable()
         for p in ipa_chars: ipa_chars_segmented.update(ft.segs_safe(p))
         return ipa_chars_segmented
+ 
   
-    def get_ipa_tokens(self):
-        """ Return set of ipa tokens, including word start and end tokens """
-        return self._ipa_tokens
-  
-    def token_to_int(self,token):
-        return self._token_to_int[token]
-  
-    def int_to_token(self,i):
-        return self._int_to_token[i]
   
     def learn_distribution(self,filename):
         """ Go through txt file and count chunks of sounds appearing in words, learning a distribution to generate from. """
@@ -303,36 +321,6 @@ class WordgenLearned(Wordgen):
         totals = counts.sum(axis=self.window_size-1)
         self._distribution = counts / (np.vectorize(lambda x : x if x!=0 else 1)(totals.reshape(totals.shape+(1,))))
   
-    def get_distribution(self):
-        """ Return distribution array D.
-            Let w be the window_size.
-            For integers i_1,...,i_w (which enumerate some IPA tokens),
-            D[i_1,...,i_w] is the probability that, given the consecutive sounds represented by i_1 ... i_{w-1} appearing in a word, that the next sound is i_w.
-            
-            The distribution should be learned from some text data before this method gets called."""
-        if self._distribution is None:
-            raise Exception("Attempted to access distribution before it was instantiated. In this case, you probably wanted to learn_distribution first.")
-        else:
-            return self._distribution
-  
-    def generate_word(self):
-        num_tokens  = len(self.get_ipa_tokens())
-        previous = [self.token_to_int('WORD_START')]*(self.window_size-1)
-        word = []
-        while previous[-1]!=self.token_to_int('WORD_END'):
-            if self.get_distribution()[tuple(previous)].sum()==0:
-                next_char = np.random.choice(range(num_tokens))
-                print("Uh oh! This shouldn't happen, right?",previous) # TODO: Decide whether this is allowed or should yield a proper error
-            else:
-                next_char = np.random.choice(range(num_tokens),p=self.get_distribution()[tuple(previous)])
-            previous = previous[1:]+[next_char]
-            word.append(next_char)
-        return ''.join(self.int_to_token(c) for c in word[:-1])
-  
-    def get_distribution_sparsity(self):
-        """ Return sparsity of distribution tensor; i.e. the proportion of entries that are zero. """
-        d=self.get_distribution()
-        return 1-np.count_nonzero(d)/float(d.size)
 
 
 
