@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser(description='Generate some words from a pickled
 parser.add_argument('filename',help='path to pickle file containing the WordgenLearned', type=str, metavar="pickle file")
 parser.add_argument('--num_words','-n',
                     nargs='?',
-                    help='How many consecutive phones (IPA glyphs) to consider at a time in the learned distribution.',
+                    help='How many words to generate.',
                     type=int,
                     default=100,
                     metavar="number of words")
@@ -24,7 +24,10 @@ except:
 
 wg = load_wg(args.filename)
 
-for _ in range(args.num_words):
+num_printed = 0
+while num_printed < args.num_words:
     word = wg.generate_word()
-    if len(word)>=args.min_len: print(word)
+    if len(word)>=args.min_len:
+        print(word)
+        num_printed += 1
 
