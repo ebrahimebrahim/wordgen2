@@ -11,32 +11,30 @@ from wordgen import WordgenLearned, save_wg, load_wg
 
 
 parser = argparse.ArgumentParser(description='Learn distribution of sounds that tend to go together given some text in a particular language.')
-parser.add_argument('filename',help='path to text file containing some text in a certain language', type=str, metavar="filename")
+parser.add_argument('filename',help='path to text file containing some text in a certain language', type=str, metavar="filename",nargs=1)
 parser.add_argument('lang_code',
                     help='Language code, for example \"eng-Latn\". See epitran/README.md for more on the language code.',
                     type=str,
-                    metavar=("language_code",))
+                    metavar="language_code",
+                    nargs=1)
 parser.add_argument('--window_size','-w',
                     nargs='?',
                     help='How many consecutive phones (IPA glyphs) to consider at a time in the learned distribution. Default is 3.',
                     type=int,
                     default=3,
                     metavar="window size")
-try:
-    args=parser.parse_args()
-except:
-    parser.print_help()
-    sys.exit(0)
+args=parser.parse_args()
 
 
-wg = WordgenLearned(window_size = args.window_size, lang_code = args.lang_code)
-wg.learn_distribution(args.filename)
+wg = WordgenLearned(window_size = args.window_size, lang_code = args.lang_code[0])
+wg.learn_distribution(args.filename[0])
 
 print("\nSome genrated words:\n")
 for _ in range(100):
     word = wg.generate_word()
     if len(word)>4: print(word)
 
-filename_pkl = os.path.splitext(args.filename)[0]+".pkl"
+filename_pkl = os.path.splitext(args.filename[0])[0]+".pkl"
+print("\nSaving learned Wordgen object to",filename_pkl)
 save_wg(wg,filename_pkl)
 
