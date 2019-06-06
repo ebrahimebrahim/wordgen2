@@ -45,6 +45,17 @@ Continuing the example from above, suppose we ended up with the saved object `sp
 python generate_some_words.py spanish_text.pkl
 ```
 
+## Merging learned word generators to create fictional languages
+For detailed help:
+```
+python merge_wordgens.py -h
+```
+Suppose that we used `learn_distribution.py` on some spanish text and some hindi text to generate the saved Wordgen objects `spanish_text.pkl` and `hindi_text.pkl`.
+Then we can do the following to generate a new distribution that randomly combines elements of spanish and hindi sound combinations:
+```
+python merge_wordgens.py spanish_text.pkl hindi_text.pkl
+```
+
 ## Next
 
-The ultimate goal is to be able to generate fictional languages, and the next step is to generate a sort of phonology that can be used to merge learned distributions.
+Generate an orthography (that looks nice/reasonable to english speakers) that can be used to display generated words as an alternative to the IPA display.
