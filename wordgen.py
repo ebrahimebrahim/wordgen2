@@ -302,7 +302,9 @@ class WordgenLearned(Wordgen):
                 word_ipa = epi.trans_list(word.strip(' .()!:;,\n'))
                 if word_ipa and all(c in self.get_ipa_tokens() for c in word_ipa):
                     yield map(self.token_to_int,word_ipa)
-                else: s_msg.print("\""+word+"\" was not processed.")
+                else:
+                    bad_chars = [c for c in word_ipa if c not in self.get_ipa_tokens()]
+                    s_msg.print("\""+word+"\" was not processed due to: "+str(bad_chars))
     
         num_tokens  = len(self.get_ipa_tokens())
         start_token = self.token_to_int('WORD_START')
