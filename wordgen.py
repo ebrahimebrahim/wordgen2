@@ -249,13 +249,15 @@ class WordgenLearned(Wordgen):
           lang_code (str)   : Language code, e.g. "eng-Latn". See epitran/README.md for details on language code.
         """
         super().__init__(window_size=window_size, lang_name=lang_code)
-    
-        sys.stdout.write("Loading Epitran with language code "+lang_code+"... ")
+
+        sys.stdout.write("Verifying that Epitran can be loaded with language code "+lang_code+"... ")
         sys.stdout.flush()
-        self._epi = epitran.Epitran(lang_code)
+        epi = epitran.Epitran(lang_code)
         # TODO if the choice of language was one of the bad ones that epitran can try to do but sucks at.... then warn the user here
-        print("success!")
+        print("... it works!")
+        epi = None
     
+        self.lang_code = lang_code
         self._ipa_tokens = self.load_ipa_chars(lang_code)
         self._ipa_tokens.add('WORD_START')
         self._ipa_tokens.add('WORD_END')
@@ -292,10 +294,12 @@ class WordgenLearned(Wordgen):
         print("Some of the words that could not be processed will be printed below; just check that nothing too bad is happening.")
     
         s_msg = SuppressedMessenger(name="unprocessed words",max_messages = 30)
+
+        epi = epitran.Epitran(self.lang_code)
     
         def extract_words(line):
             for word in line.split():
-                word_ipa = self._epi.trans_list(word.strip(' .()!:;,\n'))
+                word_ipa = epi.trans_list(word.strip(' .()!:;,\n'))
                 if word_ipa and all(c in self.get_ipa_tokens() for c in word_ipa):
                     yield map(self.token_to_int,word_ipa)
                 else: s_msg.print("\""+word+"\" was not processed.")
