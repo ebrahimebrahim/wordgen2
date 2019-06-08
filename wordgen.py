@@ -258,36 +258,101 @@ class WordgenLearned(Wordgen):
         epi = None
     
         self.lang_code = lang_code
-        self._ipa_tokens = self.load_ipa_chars(lang_code)
+
+        # These will be initialized later by load_ipa_tokens
+        self._ipa_tokens = None
+        self._int_to_token = None
+        self._token_to_int = None
+        self._distribution = None
+
+      
+    def load_ipa_tokens(self,filename,words_to_try = 10000):
+        """ Inititalize set of IPA tokens that can come up based on transliterating a bunch of words and looking at what phonemes come up.
+            Only "pure" words are counted for this; i.e. those words in which nothing was skipped during transliteration because
+            it didn't appear in epitran's mapping.
+
+            This will also initialize an int-token mapping to be used to interpret the distribution tensor.
+
+            filename (str) : File containing words in the target language. 
+                             Can be the same as the file from which distribution will be learned
+            words_to_try (int) : Number of pure words to transliterate in order to build set of ipa tokens.
+                                 If this is too small, the set of tokens might be incomplete and some sound combinations will be skipped
+                                 while learning the distribution. If this is too large, it might take unnecessarily long time to build
+                                 the set of IPA tokens.
+         """
+
+
+
+
+        def ensure_all_segmented(possibly_unsegmented_strings):
+            """ Use panphon on all elements of given set of ipa strings to split them into what panphon
+                considers to be "segments", in case they were not already split up like that. """
+            ft = panphon.featuretable.FeatureTable()
+            definitely_segmented_strings = set()
+            for p in possibly_unsegmented_strings: definitely_segmented_strings.update(ft.segs_safe(p))
+            return definitely_segmented_strings
+
+
+        if self.lang_code in epitran.Epitran.special:
+            if self.lang_code == "eng-Latn":
+                flite  = epitran.flite.Flite()
+                ipa_tokens = set(flite._read_arpabet("epitran/epitran/data/arpabet.csv").values())
+                if '' in ipa_tokens : ipa_tokens.remove('')
+                ipa_tokens = ensure_all_segmented(ipa_tokens)
+            else:
+                raise NotImplementedError("load_mapping_phonemes not know how to handle this language!")
+
+        else:
+            # First let's see what are phonemes that epitran has in its grapheme-to-phomeme mapping
+            # It will be good to make sure at the end that at least these end up in the set of ipa tokens
+            # These alone are not necessarily enough due to the pre- and post- processing that can introduce
+            # other more IPA segments than appear in that mapping.
+            simple = epitran.simple.SimpleEpitran(self.lang_code)
+            mapping_phonemes_raw = set(p for l in simple._load_g2p_map(self.lang_code,False).values() for p in l)
+            if '' in mapping_phonemes_raw : mapping_phonemes_raw.remove('')
+            mapping_phonemes = ensure_all_segmented(mapping_phonemes_raw)
+                
+            # Next, we look at words in the given file and transliterate them and pick out phonemes
+            print("Gathering phonemes from",filename)
+            epi = epitran.Epitran(self.lang_code)
+            num_words = 0
+            ipa_tokens = set()
+            with open(filename) as f:
+                for line in f.readlines():
+                    for word in line.split():
+                        word = word.strip(' .()!:;,\n')
+                        if simple.check_purity(word):
+                            ipa_tokens.update(epi.trans_list(word))
+                            num_words += 1
+                            sys.stdout.write("> "+str(num_words)+" words processed                   \r")
+                            sys.stdout.flush()
+                    if num_words >= words_to_try : break
+                print()
+    
+            for m in mapping_phonemes:
+                if m not in ipa_tokens:
+                    print("Warning: The symbol",m,"was spotted in epitran's grapheme-phoneme mapping,",
+                           "but was never encountered in the text and is therefore being omitted from the set of ipa tokens.")
+
+    
+        # Inititalize attributes
+        self._ipa_tokens = ipa_tokens
         self._ipa_tokens.add('WORD_START')
         self._ipa_tokens.add('WORD_END')
         self._int_to_token = dict(enumerate(self._ipa_tokens))
         self._token_to_int = {v:k  for k,v in self._int_to_token.items()}
-        self._distribution = None
-    
-      
-      
-    def load_ipa_chars(self,lang_code):
-        """Return set of characters that epitran will use for phonemes for the given language code"""
-        if lang_code in epitran.Epitran.special:
-            if lang_code == "eng-Latn":
-                flite  = epitran.flite.Flite()
-                ipa_chars = set(flite._read_arpabet("epitran/epitran/data/arpabet.csv").values())
-            else:
-                raise NotImplementedError("load_ipa_chars still does not know how to handle this language!")
-        else:
-            simple = epitran.simple.SimpleEpitran(lang_code)
-            ipa_chars=set(p for l in simple._load_g2p_map(lang_code,False).values() for p in l)
-        if '' in ipa_chars : ipa_chars.remove('')
-        ipa_chars_segmented = set()
-        ft = panphon.featuretable.FeatureTable()
-        for p in ipa_chars: ipa_chars_segmented.update(ft.segs_safe(p))
-        return ipa_chars_segmented
+
+
  
   
   
     def learn_distribution(self,filename):
         """ Go through txt file and count chunks of sounds appearing in words, learning a distribution to generate from. """
+
+
+        if self._ipa_tokens is None:
+            self.load_ipa_tokens(filename)
+
     
         print("About to learn from",filename)
         print("For each word, each chunk of",self.window_size,"sounds will be considered.")
