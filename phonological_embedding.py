@@ -18,6 +18,7 @@ class PhonologicalEmbedding(object):
         'ʂʲː':'ʃʲ',
         'tɕʲ':'t̠ʃʲ',
         't͡ɬ':'tɬ',
+        'p͡f':'pf',
     }
 
     def __init__(self):
