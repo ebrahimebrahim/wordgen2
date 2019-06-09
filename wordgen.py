@@ -358,7 +358,7 @@ class WordgenLearned(Wordgen):
         print("For each word, each chunk of",self.window_size,"sounds will be considered.")
         print("Some of the words that could not be processed will be printed below; just check that nothing too bad is happening.")
     
-        s_msg = SuppressedMessenger(name="unprocessed words",max_messages = 30)
+        s_msg = SuppressedMessenger(name="unprocessed words",max_messages = 1000)
 
         epi = epitran.Epitran(self.lang_code)
     
@@ -369,7 +369,8 @@ class WordgenLearned(Wordgen):
                     yield map(self.token_to_int,word_ipa)
                 else:
                     bad_chars = [c for c in word_ipa if c not in self.get_ipa_tokens()]
-                    s_msg.print("\""+word+"\" was not processed due to: "+str(bad_chars))
+                    if bad_chars and any(c not in '1234567890-()[]{}=@' for c in bad_chars): # not useful to see this warning in most cases
+                        s_msg.print("\""+word+"\" was not processed due to: "+str(bad_chars))
     
         num_tokens  = len(self.get_ipa_tokens())
         start_token = self.token_to_int('WORD_START')
