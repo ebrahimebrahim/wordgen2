@@ -14,6 +14,9 @@ class PhonologicalEmbedding(object):
         't͡ɕ':'tɕ',
         't͡s':'ts',
         'd͡ʑ':'dʑ',
+        'ɕːʲ':'ʃʲ',
+        'ʂʲː':'ʃʲ',
+        'tɕʲ':'t̠ʃʲ',
     }
 
     def __init__(self):
@@ -33,6 +36,11 @@ class PhonologicalEmbedding(object):
         """ Convert a single ipa segment to a numpy array of phoible features, ready for embedding matrix to be applied to it.
             ipa_seg (string) : a single unicode ipa segment as would appear in phoible or as could be output by epitran """
         ipa_seg = self.epitran_to_phoible(ipa_seg)
+        if ipa_seg not in PhonologicalEmbedding.__to_phoible_feats_dict.keys():
+            raise KeyError("The ipa segment "+str(ipa_seg)+" was not found in the phoible ipa-to-features dict. "+\
+                           "We use phoible data to work with features, while we use epitran to generate transliterations. "+\
+                           "Even though both stick to a strict standard, IPA in unicode, they sometimes have different representations "+\
+                           "which can cause this error.\n Consider writing an exception into PhonologicalEmbedding.__epitran_phoible_replacements.")
         return np.array(PhonologicalEmbedding.__to_phoible_feats_dict[ipa_seg],dtype='float32')
 
     def embed(self,ipa_seg):
