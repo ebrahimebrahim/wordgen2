@@ -10,7 +10,7 @@ add_path_to_local_module("panphon")
 from suppressed_messenger import SuppressedMessenger
 import panphon
 import epitran
-import pickle
+import pickle, csv
 import phonological_embedding
 
 
@@ -26,6 +26,7 @@ class Wordgen(object):
         if window_size < 2: raise Exception("A window size less than 2 does not make sense.")
         self.window_size = window_size
         self.lang_name = lang_name
+        self._orthographize = None
     
     def get_ipa_tokens(self):
         """ Return set of ipa tokens, including word start and end tokens """
@@ -49,7 +50,13 @@ class Wordgen(object):
         else:
             return self._distribution
   
-    def generate_word(self):
+    def generate_word(self,orthographize = False):
+        """ Use distribution to randomly generate a word. 
+            
+            orthographize (bool) : If True then will use this wordgen's orthography to also print a version of the word
+
+            Returns either the IPA of the generated word,
+                    or both the IPA of the generated word as well as a spelled out version using orthography"""
         num_tokens  = len(self.get_ipa_tokens())
         previous = [self.token_to_int('WORD_START')]*(self.window_size-1)
         word = []
@@ -61,7 +68,24 @@ class Wordgen(object):
                 next_char = np.random.choice(range(num_tokens),p=self.get_distribution()[tuple(previous)])
             previous = previous[1:]+[next_char]
             word.append(next_char)
-        return ''.join(self.int_to_token(c) for c in word[:-1])
+        word_vec = [self.int_to_token(c) for c in word[:-1]]
+
+        if orthographize:
+            return ''.join(word_vec),''.join(self.orthographize(word_vec))
+        else:
+            return ''.join(word_vec)
+
+    def orthographize(self,word_vec): #TODO Make this a class with orthography dict as static member var. Current approach is garbage.
+        if self._orthographize is None:
+            orthography_dict = {}
+            with open('orthography_table.csv','r') as orthography_table_file:
+                r = csv.reader(orthography_table_file)
+                header = next(r)
+                for line in r:
+                    orthography_dict[line[0]] = np.random.choice(line[1].split())
+            apply_orthography_dict_if_can = lambda phoneme : orthography_dict[phoneme] if phoneme in orthography_dict.keys() else phoneme
+            self._orthographize = lambda word_vec : map(apply_orthography_dict_if_can,word_vec)
+        return self._orthographize(word_vec)
   
     def get_distribution_sparsity(self):
         """ Return sparsity of distribution tensor; i.e. the proportion of entries that are zero. """

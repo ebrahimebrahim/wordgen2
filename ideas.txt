@@ -1,3 +1,26 @@
+orthography TODO:
+- redo current crappy function as a class
+- have it make consistent spelling choice somehow? maybe with goal of tending to not unnecessarily enlarge alphabet?
+- allow spelling variations. e.g. phonemes whose spelling depends on their position in the word and other context
+- allow more spelling weirdnesses like introduction of silent letters
+
+-----
+
+Some new ideas for merging:
+Still use random balls with random direction vector for choosing phoneme set for language.
+But when merging, don't use the balls for equivalence classes.
+Instead:
+    Suppose your phoneme set is S and the set of languages being merged is L
+    For each p in S, and l in L, let n(p,l) be the nearest phoneme of L to p (using phonological distance)
+    Or better yet, let N(p,l) be the set of phonemes of L that are near to p (nearest 2 or 3?)
+    Then D[token_indices] is determined for each token_indices by choosing a random language and using its nearest phonemes to each token,
+    perhaps with the random language choice weighted towards languages with closer nearest phonemes?
+
+still need to try this and see how it compares...
+
+
+-----
+
 convert wikipedia language dump for language X into IPA
 then learn distributions for IPA
 this way we can use arabic, etc.
