@@ -104,7 +104,7 @@ class WordgenMerged(Wordgen):
         assert(all(gen.window_size == self.window_size for gen in learned_gens))
 
         # Load in the fixed phonological embedding. This was created in exploration4.ipynb
-        self.ph_embed = phonological_embedding.PhonologicalEmbedding()
+        ph_embed = phonological_embedding.PhonologicalEmbedding()
 
         # First gather all ipa_tokens
         all_ipa_tokens = set()
@@ -126,7 +126,7 @@ class WordgenMerged(Wordgen):
         dists = []
         for c1 in all_ipa_tokens:
             for c2 in all_ipa_tokens:
-                if c1 != c2 : dists.append(self.ph_embed.dist(c1,c2))
+                if c1 != c2 : dists.append(ph_embed.dist(c1,c2))
         max_dist,min_dist = max(dists),min(dists)
 
         # Create equivalence classes of phonemes to cut down number of sounds
@@ -142,16 +142,16 @@ class WordgenMerged(Wordgen):
             s0 = all_ipa_tokens[ipa_char_index]
             for n in range(num_all_tokens):
                 s = all_ipa_tokens[n]
-                if self.ph_embed.dist(s,s0)<r:
+                if ph_embed.dist(s,s0)<r:
                     projection[n]=projection[ipa_char_index]
             if len(set(projection))<=M: break
 
         # Choose a representative for each equivalence class to serve as the standard/official pronunciation for the new language
-        direction = np.array([np.random.normal() for _ in range(self.ph_embed.embed_dim)])
+        direction = np.array([np.random.normal() for _ in range(ph_embed.embed_dim)])
         section = {} # Think of section as a map back from the codomain of projection to the domain which picks a rep of each equivalence class
         for p in set(projection):
             equiv_class = [n for n in range(num_all_tokens) if projection[n]==p]
-            rep = max(equiv_class,key=lambda n : np.dot(self.ph_embed.embed(all_ipa_tokens[n]),direction).item())
+            rep = max(equiv_class,key=lambda n : np.dot(ph_embed.embed(all_ipa_tokens[n]),direction).item())
             for n in equiv_class: section[n] = rep
             # print(all_ipa_tokens[rep],[all_ipa_tokens[n] for n in equiv_class])
         
