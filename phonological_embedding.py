@@ -58,3 +58,14 @@ class PhonologicalEmbedding(object):
         v1 = self.embed(ipa_seg1)
         v2 = self.embed(ipa_seg2)
         return np.sqrt(((v1-v2)**2).sum())
+
+    def nearest(self,ipa_seg,segs):
+        """ Determine the ipa segment from a particular set of segs which is nearest to a given ipa segment
+
+            ipa_seg (string) : a single unicode ipa segment as would appear in phoible or as could be output by epitran
+            segs (iterable of strings)  : set of segments in which to search for nearest neighbor 
+            
+            Returns string, the element of segs which is nearest to ipa_seg according to euclidean distance after the embedding. """
+
+        if ipa_seg in segs: return ipa_seg
+        return min(segs,key=lambda s : self.dist(ipa_seg,s))

@@ -171,38 +171,34 @@ class WordgenMerged(Wordgen):
         self._int_to_token = {n:ipa_tokens[n] for n in range(num_tokens)}
         self._token_to_int = {val:key for key,val in self._int_to_token.items()}
 
-        # Finally, we create the merged distribution:
+
+
+        # Alternative approach:
+
+        def token_to_nearest_int(token,gen): # Find index (w.r.t. gen) corresponding to the token of gen that is nearest to the given token
+            if token in ['WORD_START','WORD_END']: return gen.token_to_int(token)
+            segs = gen.get_ipa_tokens()
+            segs.difference_update(['WORD_START','WORD_END'])
+            return gen.token_to_int(ph_embed.nearest(token,segs))
+
+        # This latter function would have to be called many times on the same inputs, so we cache the needed outputs here:
+        token_to_nearest_int_dicts = {}
+        for gen in learned_gens:
+            token_to_nearest_int_dicts[gen] = {}
+            for token in self._ipa_tokens:
+                token_to_nearest_int_dicts[gen][token] = token_to_nearest_int(token,gen)
         
+
         self._distribution = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('float32'))
         for token_indices in product(range(num_tokens),repeat=self.window_size):
 
             tokens = [self.int_to_token(i) for i in token_indices]
             equiv_classes = [token_to_equivclass[t] for t in tokens]
 
-            potential_gens = {} # keys will be learned wordgens that could be used to populate distribution[token_indices]
-                                # values will be a score; higher means better candidate
-            for gen in learned_gens:
-                potential_tokens = gen.get_ipa_tokens()
-                if all(any(t in potential_tokens for t in cls) for cls in equiv_classes):
-                    potential_gens[gen] = sum(1 for t in tokens if t in potential_tokens)
+            gen = np.random.choice(learned_gens)
+            indices_to_use = tuple(token_to_nearest_int_dicts[gen][t] for t in tokens)
 
-            if not potential_gens: # if it's an empty dict
-                continue # move on and leave distribution[token_indices] as zero
-
-            max_score = max(potential_gens.values())
-            best_gens = [gen for gen in potential_gens.keys() if potential_gens[gen]==max_score]
-            gen_to_use = np.random.choice(best_gens)
-
-            indices_to_use = [] # indices of gen_to_use type to use for each token in tokens
-            for t in tokens:
-                if t in gen_to_use.get_ipa_tokens():
-                    indices_to_use.append(gen_to_use.token_to_int(t))
-                else:
-                    potential_indices = [gen_to_use.token_to_int(t1) for t1 in token_to_equivclass[t] if t1 in gen_to_use.get_ipa_tokens()]
-                    indices_to_use.append(np.random.choice(potential_indices))
-            indices_to_use = tuple(indices_to_use)
-
-            self._distribution[token_indices] = gen_to_use.get_distribution()[indices_to_use]
+            self._distribution[token_indices] = gen.get_distribution()[indices_to_use]
 
 
         # Now the generator we created could create some impossible combinations, so here is a helper function to clear them out.
@@ -242,7 +238,7 @@ class WordgenMerged(Wordgen):
         num_impossibles_found = 1
         while num_impossibles_found!=0:
             num_impossibles_found = clear_out_impossible_combos(self._distribution,self._token_to_int)
-            # print(num_impossibles_found,"bad entries repaired.")
+            print(num_impossibles_found,"bad entries repaired.")
 
 
         # The distribution still needs to be normalized:

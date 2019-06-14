@@ -86,6 +86,13 @@ Another way to say it:
  If D[i,j,k] is zero for all k, then
  D[l,i,j] had better be zero for all l
 
+Additionally, it would be completely useless if D[i,j,k] were nonzero for some k while D[l,i,j] is zero for all l.
+
+
+
+
+
+
 Actually.. you can get super weird feedback loops by merging language distributions this way...
 
 
