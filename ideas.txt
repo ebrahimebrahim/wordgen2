@@ -1,5 +1,4 @@
 orthography TODO:
-- redo current crappy function as a class
 - have it make consistent spelling choice somehow? maybe with goal of tending to not unnecessarily enlarge alphabet?
 - allow spelling variations. e.g. phonemes whose spelling depends on their position in the word and other context
 - allow more spelling weirdnesses like introduction of silent letters
