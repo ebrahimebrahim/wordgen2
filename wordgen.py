@@ -190,22 +190,25 @@ class WordgenMerged(Wordgen):
         
 
         self._distribution = np.zeros((num_tokens,)*self.window_size,dtype=np.dtype('float32'))
-        for token_indices in product(range(num_tokens),repeat=self.window_size):
+        for token_indices_init in product(range(num_tokens),repeat=self.window_size-1):
+            for token_index_last in range(num_tokens):
 
-            tokens = [self.int_to_token(i) for i in token_indices]
-            equiv_classes = [token_to_equivclass[t] for t in tokens]
+                token_indices = token_indices_init + (token_index_last,)
 
-            gen = np.random.choice(learned_gens)
-            indices_to_use = tuple(token_to_nearest_int_dicts[gen][t] for t in tokens)
+                tokens = [self.int_to_token(i) for i in token_indices]
+                equiv_classes = [token_to_equivclass[t] for t in tokens]
 
-            self._distribution[token_indices] = gen.get_distribution()[indices_to_use]
+                gen = np.random.choice(learned_gens)
+                indices_to_use = tuple(token_to_nearest_int_dicts[gen][t] for t in tokens)
+
+                self._distribution[token_indices] = gen.get_distribution()[indices_to_use]
 
 
         # Now the generator we created could create some impossible combinations, so here is a helper function to clear them out.
 
         def clear_out_impossible_combos(D, t_to_i):
             """Given a distribution D, make one pass through the entries and clear out
-               impossible combbinations by zeroing probabilities.
+               impossible combinations by zeroing probabilities.
                More precisely (assuming window size of 3 in the notation here):
 
                For each i,j, we ensure that if D[i,j,k] is zero for all k,
@@ -235,10 +238,47 @@ class WordgenMerged(Wordgen):
 
             return num_impossibles_found
 
+
+        def clear_out_useless_combos(D, t_to_i):
+            """Given a distribution D, make one pass through the entries and clear out
+               useless combinations by zeroing probabilities.
+               More precisely (assuming window size of 3 in the notation here):
+
+               For each i,j, we ensure that if D[l,i,j] is zero for all l,
+               then D[i,j,k] is also zero for all k.
+
+               After one iteration through all i,j, more useless combinations may be created,
+               so this function would have to be called repeatedly until that is done.
+
+               Arguments:
+                   D is the wordgen distribution
+                   t_to_i is the dict mapping IPA tokens to indices
+
+               Return number of nonzero D[l,i,j] found (and repaired) for which D[i,j,k] was zero for all k"""
+
+            num_found = 0
+
+            w = len(D.shape) # win size
+            n = D.shape[0] # num_tokens
+            for token_indices in product(range(n),repeat=w-1): # For each i,j
+                if all(i==t_to_i['WORD_START'] for i in token_indices):
+                    continue
+                if all(D[(l,)+token_indices] <= 0 for l in range(n)) : # if D[l][i,j] is zero for all l
+                    for k in range(n):
+                        if D[token_indices+(k,)]!=0:
+                            num_found += 1
+                            D[token_indices+(k,)]=0
+                            # print("Removed useless combo",[self.int_to_token(t) for t in token_indices])
+
+            return num_found
+
         num_impossibles_found = 1
-        while num_impossibles_found!=0:
+        num_useless_found = 1
+        while num_impossibles_found + num_useless_found != 0:
             num_impossibles_found = clear_out_impossible_combos(self._distribution,self._token_to_int)
-            print(num_impossibles_found,"bad entries repaired.")
+            num_useless_found = clear_out_useless_combos(self._distribution,self._token_to_int)
+            print(num_impossibles_found,"impossible entries zeroed.")
+            print(num_useless_found,"useless entries zeroed.")
 
 
         # The distribution still needs to be normalized:
