@@ -17,6 +17,9 @@ Instead:
 
 still need to try this and see how it compares...
 
+This is now implemented and under testing, but issue:
+  How can we be sure that words will END? It seems we are not guaranteed this...
+
 
 -----
 

@@ -60,6 +60,7 @@ class Wordgen(object):
         num_tokens  = len(self.get_ipa_tokens())
         previous = [self.token_to_int('WORD_START')]*(self.window_size-1)
         word = []
+        word_len = 0
         while previous[-1]!=self.token_to_int('WORD_END'):
             if self.get_distribution()[tuple(previous)].sum()==0:
                 next_char = np.random.choice(range(num_tokens))
@@ -68,6 +69,10 @@ class Wordgen(object):
                 next_char = np.random.choice(range(num_tokens),p=self.get_distribution()[tuple(previous)])
             previous = previous[1:]+[next_char]
             word.append(next_char)
+            word_len += 1
+            if word_len > 1000 :
+                print("We appear to be stuck generating this word. Stopping!")
+                break
         word_vec = [self.int_to_token(c) for c in word[:-1]]
 
         if orthographize:
@@ -179,6 +184,7 @@ class WordgenMerged(Wordgen):
             if token in ['WORD_START','WORD_END']: return gen.token_to_int(token)
             segs = gen.get_ipa_tokens()
             segs.difference_update(['WORD_START','WORD_END'])
+            segs.difference_update(bad_tokens) # TODO there should be a more elegant way to handle bad_tokens
             return gen.token_to_int(ph_embed.nearest(token,segs))
 
         # This latter function would have to be called many times on the same inputs, so we cache the needed outputs here:
