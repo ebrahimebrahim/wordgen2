@@ -33,6 +33,8 @@ python learn_distribution.py spanish_text.txt spa-Latn --window_size 4
 ```
 would go through each word in the text and look at which 4-letter groups of sounds occur. In order to focus on sounds, wordgen works with the IPA for each word. It determines the IPA using [epitran](https://github.com/dmort27/epitran), and this is why the language code `spa-Latn` needs to be provided. Once the entire file is processed, a family of probability distributions is saved in the file `spanish_text.pkl`. These distributions can be used to generate fake words that sound like they could have come from Spanish.
 
+For a list of languages and epitran language codes, see [the table in the epitran readme](https://github.com/ebrahimebrahim/epitran#transliteration-languagescript-pairs).
+
 Watch out for the file size of the saved distributions. The `window_size` option has an exponential effect.
 
 ## Generating words from saved wordgen data
