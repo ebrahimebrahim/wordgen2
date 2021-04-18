@@ -99,8 +99,8 @@ come from allophones. Allophone pairs from 1270 different natural languages were
 By identifying sounds that are close together per the embedding, the large unioned set of IPA tokens can be cut down to a reasonable size.
 The code used to produce the embedding can be found in `exploration/exploration4.ipynb`.
 
-Finally, each grouping of `n` sounds (where `n` is the `window_size` arg from `learn_distribution.py`) derives its frequency from one of the merged
+Finally, each grouping of n sounds (where n is the `window_size` arg from `learn_distribution.py`) derives its frequency from one of the merged
 wordgens chosen at random.
 
 Clarification: The choices of allophone classes, the choices of representative IPA tokens for each allophone class, and the choices of wordgens used for each
-`n`-sound-grouping _do not vary_ with each run of `generate_words.py`. One set of choices is made when you run `merge_wordgens.py` and that set of choices is frozen into the resuling pkl file.
+n-sound-grouping _do not vary_ with each run of `generate_words.py`. One set of choices is made when you run `merge_wordgens.py` and that set of choices is frozen into the resuling pkl file. Repeated runs of `merge_wordgens.py` can yield different and interesting results each time.
