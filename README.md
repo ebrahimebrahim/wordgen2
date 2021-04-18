@@ -13,8 +13,16 @@ This could be a useful tool for the generation of names or entire vocabularies f
 Here are some fun words that were made by merging two wordgens, one trained on an English novel and another trained on a Hungarian novel:
 
 ```
-anean, wojtsan, kaeat, annedethatatagana, meret, lahazam, azet, alambar, howrga, andenkart, hwllantam, wolna, howl, megtanashebzatlantszegashemmea, alramarnet, cwojcantszad, andef, alwb, shaflegaratamat, tehatattak, menralej, elsheanfaled, neɟakezdekra, lagnarats, alresh, ronɟran, kudnakezatadbannek, ashenkentam, annanea, batheknaked, hanam, howl, annakadett, alkannee, retsenr, apetettalna, eletta, ejmatstrb, athalatne, wrldlea, malentshaneɟenatashenken, azer, wnjamwlard, lats, teadjaeat, ethzamashankorollaposhak, haraeala, apetattanedtemendanrandactr, anna'othnalowkazden, alambaletatte, rwk, arkabagashankeanakedeakanashabbek, angarbannekat, anr, alwaneɟanacts, azon, twdnea, tshekamet, oltsz, pojnt, ezzalame, ludne, crajtad, kazakezden, cudne, alenhasha, welangeteñ, eɟejwreanakeene, haraelatokban, lawazakaltam, porogwa, alrenaɟan, angarn, annon, fakt, nawmea, cwar, naɟonna'paean, cudnakethna, annapeant, enantajangalesh, cart, anam, newadatatatlenekea, wttsthannea, alkanne, anea, lawarjedetta, nahataken, annee, watram, pejnerazal, ablakow, kathen, namat, howl, andenashabbek
-warn, pelamejc, ajtad, angetatlan
+anean, wojtsan, kaeat, annedethatatagana, meret, lahazam, azet, alambar, howrga, andenkart,
+hwllantam, wolna, howl, megtanashebzatlantszegashemmea, alramarnet, cwojcantszad, andef, alwb, shaflegaratamat, tehatattak,
+menralej, elsheanfaled, neɟakezdekra, lagnarats, alresh, ronɟran, kudnakezatadbannek, ashenkentam, annanea, batheknaked,
+hanam, howl, annakadett, alkannee, retsenr, apetettalna, eletta, ejmatstrb, athalatne, wrldlea,
+malentshaneɟenatashenken, azer, wnjamwlard, lats, teadjaeat, ethzamashankorollaposhak, haraeala, apetattanedtemendanrandactr, anna'othnalowkazden, alambaletatte,
+rwk, arkabagashankeanakedeakanashabbek, angarbannekat, anr, alwaneɟanacts, azon, twdnea, tshekamet, oltsz, pojnt,
+ezzalame, ludne, crajtad, kazakezden, cudne, alenhasha, welangeteñ, eɟejwreanakeene, haraelatokban, lawazakaltam,
+porogwa, alrenaɟan, angarn, annon, fakt, nawmea, cwar, naɟonna'paean, cudnakethna, annapeant,
+enantajangalesh, cart, anam, newadatatatlenekea, wttsthannea, alkanne, anea, lawarjedetta, nahataken, annee
+watram, pejnerazal, ablakow, kathen, namat, howl, andenashabbek, warn, pelamejc, ajtad, angetatlan
 ```
 
 How are these pronounced? There is actually a "correct" pronunciation, if you want it, because the output is produced in IPA.
