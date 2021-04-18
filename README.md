@@ -1,10 +1,24 @@
 # Wordgen 2
 
-This is a successor to wordgen with a more statistical approach rather than being focused on phonotactic constraints.
+Wordgen is a random word generator that can learn from natural language text.
+It uses the sound combinations it finds in sample texts to generate new pronounceable words.
 
-It is still in an exploratory phase at the moment.
+Use `learn_distribution.py` at the command line to learn a wordgen object, and then use `generate_words.py` on that wordgen.
+Use `merge_wordgens.py` to merge different wordgens and create a totally unique sounding wordgen.
 
-Ultimately, being able to learn and even generate distributions could make this a useful tool for the generation of languages for fictional settings.
+This could be a useful tool for the generation of names or entire vocabularies for fictional settings.
+
+## Example output
+
+Here are some fun words that were made by merging two wordgens, one trained on an English novel and another trained on a Hungarian novel:
+
+```
+anean, wojtsan, kaeat, annedethatatagana, meret, lahazam, azet, alambar, howrga, andenkart, hwllantam, wolna, howl, megtanashebzatlantszegashemmea, alramarnet, cwojcantszad, andef, alwb, shaflegaratamat, tehatattak, menralej, elsheanfaled, neɟakezdekra, lagnarats, alresh, ronɟran, kudnakezatadbannek, ashenkentam, annanea, batheknaked, hanam, howl, annakadett, alkannee, retsenr, apetettalna, eletta, ejmatstrb, athalatne, wrldlea, malentshaneɟenatashenken, azer, wnjamwlard, lats, teadjaeat, ethzamashankorollaposhak, haraeala, apetattanedtemendanrandactr, anna'othnalowkazden, alambaletatte, rwk, arkabagashankeanakedeakanashabbek, angarbannekat, anr, alwaneɟanacts, azon, twdnea, tshekamet, oltsz, pojnt, ezzalame, ludne, crajtad, kazakezden, cudne, alenhasha, welangeteñ, eɟejwreanakeene, haraelatokban, lawazakaltam, porogwa, alrenaɟan, angarn, annon, fakt, nawmea, cwar, naɟonna'paean, cudnakethna, annapeant, enantajangalesh, cart, anam, newadatatatlenekea, wttsthannea, alkanne, anea, lawarjedetta, nahataken, annee, watram, pejnerazal, ablakow, kathen, namat, howl, andenashabbek
+warn, pelamejc, ajtad, angetatlan
+```
+
+How are these pronounced? There is actually a "correct" pronunciation, if you want it, because the output is produced in IPA.
+It's [up to you](#Orthography) how to convert the IPA into a natural looking spelling system. The words above are the result of one such conversion.
 
 ## Setup
 
@@ -23,6 +37,7 @@ $ make lex_lookup
 $ sudo cp lex_lookup /usr/local/bin
 ```
 ## Learning a word generator from text
+
 For detailed help:
 ```
 python learn_distribution.py -h
@@ -104,3 +119,10 @@ wordgens chosen at random.
 
 Clarification: The choices of allophone classes, the choices of representative IPA tokens for each allophone class, and the choices of wordgens used for each
 n-sound-grouping _do not vary_ with each run of `generate_words.py`. One set of choices is made when you run `merge_wordgens.py` and that set of choices is frozen into the resuling pkl file. Repeated runs of `merge_wordgens.py` can yield different and interesting results each time.
+
+## History
+
+This is a successor to [wordgen](https://github.com/ebrahimebrahim/wordgen).
+Where the approach here is statistical, the approach in the first wordgen was
+focused on manually coding [phonotactic constraints](https://en.wikipedia.org/wiki/Phonotactics)
+for specific languages.
