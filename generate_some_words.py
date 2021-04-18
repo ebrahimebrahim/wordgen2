@@ -16,14 +16,23 @@ parser.add_argument('--min_len','-l',
                     type=int,
                     default=4,
                     metavar="minimum word length")
+parser.add_argument('--orth','-o',
+                    action='store_true',
+                    help='Whether to use orthography_table.csv to convert IPA tokens to some spelling system.',)
 args=parser.parse_args()
 
 wg = load_wg(args.filename[0])
 
 num_printed = 0
 while num_printed < args.num_words:
-    word = wg.generate_word()
+    word_orth = None
+    if args.orth:
+        word, word_orth = wg.generate_word(orthographize=True)
+    else:
+        word = wg.generate_word()
     if len(word)>=args.min_len:
-        print(word)
+        line_to_print = word
+        if word_orth is not None: line_to_print += '\t' + word_orth
+        print(line_to_print)
         num_printed += 1
 
