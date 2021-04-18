@@ -358,7 +358,7 @@ class WordgenLearned(Wordgen):
                 if '' in ipa_tokens : ipa_tokens.remove('')
                 ipa_tokens = ensure_all_segmented(ipa_tokens)
             else:
-                raise NotImplementedError("load_mapping_phonemes not know how to handle this language!")
+                raise NotImplementedError("load_ipa_tokens not know how to handle this language!")
 
         else:
             # First let's see what are phonemes that epitran has in its grapheme-to-phomeme mapping
