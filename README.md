@@ -67,7 +67,9 @@ Clarification: The choices of possible spellings _do not vary_ with each run of 
 One set of choices is made when you run `learn_distribution.py` and that set of choices is frozen into the resuling pkl file.
 The idea is that a particular and consistent way of spelling things can give some sense of culture.
 
-## Merging learned word generators to create fictional languages
+## Merging word generators
+
+You can merge learned word generators to create some more unique sound distributions.
 For detailed help:
 ```
 python merge_wordgens.py -h
@@ -78,4 +80,27 @@ Then we can do the following to generate a new distribution that randomly combin
 python merge_wordgens.py spanish_text.pkl hindi_text.pkl
 ```
 
+### How merging works
 
+Wordgens that were learned based on different texts or different languages could involve completely different sets of IPA tokens.
+Omitting some tokens isn't so good, because too many sound combinations become impossible and the resulting wordgen starts
+to become repetitive with the few sound combinations that were compatible with all the source wordgens.
+Unioning all token sets together wouldn't be good either, because it creates a a wordgen with an unreasonable amount of possible sounds.
+
+The solution we use here is to union the token sets together and then cut down the size of the token set by identifying some tokens as equivalent.
+In a natural language, different sounds that are treated as equivalent by the language
+are called _allophones_.
+We need a reasonable way to identify some IPA tokens across different languages as being allophones in a merged language.
+
+Here I have used the [PHOIBLE](https://phoible.github.io/) database of phonological features and allophone pairs.
+It allows me to convert each IPA token into a phonological feature vector.
+I used PyTorch to train a linear embedding from phonological feature space into a euclidean space such that points that are close together tend to have
+come from allophones. Allophone pairs from 1270 different natural languages were used to do this.
+By identifying sounds that are close together per the embedding, the large unioned set of IPA tokens can be cut down to a reasonable size.
+The code used to produce the embedding can be found in `exploration/exploration4.ipynb`.
+
+Finally, each grouping of `n` sounds (where `n` is the `window_size` arg from `learn_distribution.py`) derives its frequency from one of the merged
+wordgens chosen at random.
+
+Clarification: The choices of allophone classes, the choices of representative IPA tokens for each allophone class, and the choices of wordgens used for each
+`n`-sound-grouping _do not vary_ with each run of `generate_words.py`. One set of choices is made when you run `merge_wordgens.py` and that set of choices is frozen into the resuling pkl file.
