@@ -310,8 +310,9 @@ class WordgenLearned(Wordgen):
         sys.stdout.write("Verifying that Epitran can be loaded with language code "+lang_code+"... ")
         sys.stdout.flush()
         epi = epitran.Epitran(lang_code)
-        # TODO if the choice of language was one of the bad ones that epitran can try to do but sucks at.... then warn the user here
         print("... it works!")
+        if lang_code in ['ara-Arab','cat-Latn','ckb-Arab','fas-Arab','fra-Latn','fra-Latn-np','mya-Mymr','por-Latn']:
+            print("BUT ... epitran has limited support for this language due to its ambiguous orthography. This might not work too well.")
         epi = None
     
         self.lang_code = lang_code
