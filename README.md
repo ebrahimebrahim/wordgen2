@@ -47,6 +47,26 @@ Continuing the example from above, suppose we ended up with the saved object `sp
 python generate_some_words.py spanish_text.pkl
 ```
 
+## Orthography
+
+By default `generate_some_words.py` will print words in IPA.
+To give the words some flavor (e.g. as though they come from some fictional culture) they can be spelled out using some mapping out of IPA into some chosen target symbols. This mapping is specified in `orthography_table.csv`. 
+
+To print this sort of spelling in addition to the IPA, use the flag `-o` when running `generate_some_words.py`.
+
+Each row in `orthography_table.csv` contains a phoneme (an IPA token) and a space-separated list of possible ways to spell out that phoneme.
+When a wordgen object is created (e.g. when `learn_distribution.py` is used),
+it chooses for itself an orthography by choosing _one_ of the possible spellings for each phoneme in `orthography_table.csv`.
+
+Make changes in `orthography_table.csv` to set up your own possible "flavors" of spelling. 
+For each row in the table, each possible spelling gets chosen with equal probability. You can repeat some possible spellings to give them different weights.
+
+When an IPA token does not have an entry in `orthography_table.csv`, the IPA is defaulted to as the spelling. Feel free to add entries in this case.
+
+Clarification: The choices of possible spellings _do not vary_ with each run of `generate_some_words.py`.
+One set of choices is made when you run `learn_distribution.py` and that set of choices is frozen into the resuling pkl file.
+The idea is that a particular and consistent way of spelling things can give some sense of culture.
+
 ## Merging learned word generators to create fictional languages
 For detailed help:
 ```
@@ -58,6 +78,4 @@ Then we can do the following to generate a new distribution that randomly combin
 python merge_wordgens.py spanish_text.pkl hindi_text.pkl
 ```
 
-## Next
 
-Generate an orthography (that looks nice/reasonable to english speakers) that can be used to display generated words as an alternative to the IPA display.
