@@ -40,19 +40,19 @@ Watch out for the file size of the saved distributions. The `window_size` option
 ## Generating words from saved wordgen data
 For detailed help:
 ```
-python generate_some_words.py -h
+python generate_words.py -h
 ```
 Continuing the example from above, suppose we ended up with the saved object `spanish_text.pkl`. To generate some words:
 ```
-python generate_some_words.py spanish_text.pkl
+python generate_words.py spanish_text.pkl
 ```
 
 ## Orthography
 
-By default `generate_some_words.py` will print words in IPA.
+By default `generate_words.py` will print words in IPA.
 To give the words some flavor (e.g. as though they come from some fictional culture) they can be spelled out using some mapping out of IPA into some chosen target symbols. This mapping is specified in `orthography_table.csv`. 
 
-To print this sort of spelling in addition to the IPA, use the flag `-o` when running `generate_some_words.py`.
+To print this sort of spelling in addition to the IPA, use the flag `-o` when running `generate_words.py`.
 
 Each row in `orthography_table.csv` contains a phoneme (an IPA token) and a space-separated list of possible ways to spell out that phoneme.
 When a wordgen object is created (e.g. when `learn_distribution.py` is used),
@@ -63,7 +63,7 @@ For each row in the table, each possible spelling gets chosen with equal probabi
 
 When an IPA token does not have an entry in `orthography_table.csv`, the IPA is defaulted to as the spelling. Feel free to add entries in this case.
 
-Clarification: The choices of possible spellings _do not vary_ with each run of `generate_some_words.py`.
+Clarification: The choices of possible spellings _do not vary_ with each run of `generate_words.py`.
 One set of choices is made when you run `learn_distribution.py` and that set of choices is frozen into the resuling pkl file.
 The idea is that a particular and consistent way of spelling things can give some sense of culture.
 

@@ -8,7 +8,7 @@ parser.add_argument('--num_words','-n',
                     nargs='?',
                     help='How many words to generate.',
                     type=int,
-                    default=100,
+                    default=1,
                     metavar="number of words")
 parser.add_argument('--min_len','-l',
                     nargs='?',
