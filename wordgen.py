@@ -378,7 +378,7 @@ class WordgenLearned(Wordgen):
             with open(filename) as f:
                 for line in f.readlines():
                     for word in line.split():
-                        word = word.strip(' .()!:;,\n')
+                        word = word.strip(' .()!:;,\n\"')
                         if simple.check_purity(word):
                             ipa_tokens.update(epi.trans_list(word))
                             num_words += 1
@@ -392,7 +392,7 @@ class WordgenLearned(Wordgen):
                     print("Warning: The symbol",m,"was spotted in epitran's grapheme-phoneme mapping,",
                            "but was never encountered in the text and is therefore being omitted from the set of ipa tokens.")
 
-    
+
         # Inititalize attributes
         self._ipa_tokens = ipa_tokens
         self._ipa_tokens.add('WORD_START')
@@ -422,7 +422,7 @@ class WordgenLearned(Wordgen):
     
         def extract_words(line):
             for word in line.split():
-                word_ipa = epi.trans_list(word.strip(' .()!:;,\n'))
+                word_ipa = epi.trans_list(word.strip(' .()!:;,\n\"'))
                 if word_ipa and all(c in self.get_ipa_tokens() for c in word_ipa):
                     yield map(self.token_to_int,word_ipa)
                 else:
