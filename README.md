@@ -13,16 +13,16 @@ This could be a useful tool for the generation of names or entire vocabularies f
 Here are some words that were made by merging two wordgens, one trained on an English novel and another trained on a Hungarian novel:
 
 ```
-anean, wojtsan, kaeat, annedethatatagana, meret, lahazam, azet, alambar, howrga, andenkart,
-porogwa, alrenaɟan, angarn, annon, fakt, nawmea, cwar, naɟonna'paean, cudnakethna, annapeant,
-enantajangalesh, cart, anam, newadatatatlenekea, wttsthannea, alkanne, anea, lawarjedetta, nahataken, annee
+anean, wojtsan, kaeat, meret, lahazam, azet, alambar, howrga, andenkart,
+porogwa, alrenaɟan, angarn, annon, fakt, nawmea, cwar, cudnakethna, annapeant,
+enantajangalesh, cart, anam, wttsthannea, alkanne, anea, lawarjedetta, nahataken, annee
 ```
 
 Here are some words that were made by merging the English wordgen with one trained on some Polish text:
 ```
-rentnem, uyona, envervrarumi, tam, 'jethov, dutshi, 'amrer, thtdonyeethtonee, thundayond, wotner, letsh, nyebu, tamten, 
-rojothtuti, tjimurone, thame, dodjer, 'odobje, idzi, rejundaytshe, gyowrdz, wudnyaw, do'reterano, retsht, envervye, 'ovdutel,
-nyemeeni, 'ovdu, nyengu, murun, redleevd, anto, tadem, needzee, jveer, ud'oto, yedinee, rubyadomojedz, gyow, unuw
+rentnem, uyona, envervrarumi, tam, 'jethov, dutshi, 'amrer, thundayond, wotner, letsh, nyebu, tamten, 
+rojothtuti, tjimurone, thame, dodjer, 'odobje, idzi, rejundaytshe, gyowrdz, wudnyaw, do'reterano, retsht, 
+envervye, 'ovdutel, nyemeeni, 'ovdu, nyengu, murun, redleevd, anto, tadem, needzee, jveer, ud'oto, yedinee
 ```
 
 How are these pronounced? There is actually a "correct" pronunciation, if you want it, because the output is produced in IPA.
