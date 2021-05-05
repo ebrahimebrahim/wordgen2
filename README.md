@@ -20,9 +20,9 @@ enantajangalesh, cart, anam, wttsthannea, alkanne, anea, lawarjedetta, nahataken
 
 Here are some words that were made by merging the English wordgen with one trained on some Polish text:
 ```
-rentnem, uyona, envervrarumi, tam, 'jethov, dutshi, 'amrer, thundayond, wotner, letsh, nyebu, tamten, 
-rojothtuti, tjimurone, thame, dodjer, 'odobje, idzi, rejundaytshe, gyowrdz, wudnyaw, do'reterano, retsht, 
-envervye, 'ovdutel, nyemeeni, 'ovdu, nyengu, murun, redleevd, anto, tadem, needzee, jveer, ud'oto, yedinee
+rentnem, uyona, envervrarumi, tam, 'jethov, dutshi, 'amrer, thundayond, wotner, letsh, 
+nyebu, tamten,  rojothtuti, tjimurone, thame, dodjer, 'odobje, idzi, rejundaytshe, gyowrdz,
+wudnyaw, do'reterano, retsht,  envervye, 'ovdutel, nyemeeni, 'ovdu, nyengu, murun, anto
 ```
 
 How are these pronounced? There is actually a "correct" pronunciation, if you want it, because the output is produced in IPA.
