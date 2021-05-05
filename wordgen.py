@@ -118,7 +118,7 @@ class WordgenMerged(Wordgen):
 
         # Remove any bad tokens that phoible didn't like for the next part. These are not good tokens for a wordgen anyway.
         # We will also remove the start and end tokens; they will be brought back in later
-        bad_tokens = ['ː','̃','ʲ','WORD_START','WORD_END']
+        bad_tokens = ['ː','̃','ʲ','WORD_START','WORD_END', chr(865)]
         for t in bad_tokens: 
             if t in all_ipa_tokens: 
                 all_ipa_tokens.remove(t)
