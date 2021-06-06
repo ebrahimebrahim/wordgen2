@@ -422,7 +422,7 @@ class WordgenLearned(Wordgen):
     
         def extract_words(line):
             for word in line.split():
-                word_ipa = epi.trans_list(word.strip(' .()!:;,\n\"'))
+                word_ipa = epi.trans_list(word.strip(' .()!?:;,\n\"'))
                 if word_ipa and all(c in self.get_ipa_tokens() for c in word_ipa):
                     yield map(self.token_to_int,word_ipa)
                 else:
